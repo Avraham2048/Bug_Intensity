@@ -37,7 +37,7 @@ end
 
 function run_batch_simulations(n_runs::Int=100, filename::String="simulation_results.csv")
     println("Starting fast batch simulation of $n_runs environments (No GUI)...")
-    df = DataFrame(RunID=Int[], Seed=UInt64[], Strategy=String[], Success=Bool[], Steps=Int[])
+    df = DataFrame(RunID=Int[], Seed=String[], Strategy=String[], Success=Bool[], Steps=Int[])
 
     for run_id in 1:n_runs
         if run_id % 20 == 0
@@ -48,7 +48,7 @@ function run_batch_simulations(n_runs::Int=100, filename::String="simulation_res
         env = generate_random_env()
         sim_results = run_single_batch_sim(env)
         for (strat, res) in sim_results
-            push!(df, (run_id, current_seed, String(strat), res.success, res.steps))
+            push!(df, (run_id, string(current_seed), String(strat), res.success, res.steps))
         end
         Random.seed!()
     end
@@ -66,7 +66,7 @@ function export_run_details(run_id::Int, input_csv::String="simulation_results.c
         return
     end
 
-    df = CSV.read(input_csv, DataFrame; types=Dict(:Seed => UInt64, :RunID => Int))
+    df = CSV.read(input_csv, DataFrame; types=Dict(:Seed => String, :RunID => Int))
     target_rows = df[df.RunID.==run_id, :]
 
     if nrow(target_rows) == 0
@@ -74,7 +74,7 @@ function export_run_details(run_id::Int, input_csv::String="simulation_results.c
         return
     end
 
-    seed = UInt64(target_rows.Seed[1])
+    seed = parse(UInt64, target_rows.Seed[1])
     println("Exporting RunID $run_id (Seed: $seed) to $output_csv...")
 
     Random.seed!(seed)
