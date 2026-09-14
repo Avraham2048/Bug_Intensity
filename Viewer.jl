@@ -258,14 +258,14 @@ function watch_replay(run_id::Int, filename::String="simulation_results.csv")
         println("Error: CSV file not found. Run batch simulation first.")
         return
     end
-    df = CSV.read(filename, DataFrame; types=Dict(:Seed => UInt64, :RunID => Int))
+    df = CSV.read(filename, DataFrame; types=Dict(:Seed => String, :RunID => Int))
     target_rows = df[df.RunID.==run_id, :]
     if nrow(target_rows) == 0
         println("Error: RunID $run_id not found in $filename.")
         return
     end
 
-    target_seed = UInt64(target_rows.Seed[1])
+    target_seed = parse(UInt64, target_rows.Seed[1])
     println("Found RunID $run_id. Reconstructing environment from Seed...")
 
     Random.seed!(target_seed)
